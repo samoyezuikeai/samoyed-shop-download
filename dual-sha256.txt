@@ -1,0 +1,2 @@
+97a4b3d423aa193bde044183d8a733dc678dc3b86defb676636b5a97ddfd2cd8  samoyed-shop-scan-0.1.2.apk
+26ec8b62cf832ef74931447e4e3aaecd245489fef46718379c9792b8b7e2fc67  samoyed-shop-cookie-0.2.0.apk
