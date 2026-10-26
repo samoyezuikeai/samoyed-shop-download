@@ -2,7 +2,8 @@
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>现有会话只读检查 · 萨摩耶开商店</title><style>body{margin:0;padding:28px 20px;background:#0d1721;color:#f0f5f8;font:16px/1.7 system-ui,sans-serif}main{max-width:680px;margin:auto}h1{font-size:25px;line-height:1.4}p,small{color:#a5bbc9}a,button{display:block;margin:14px 0;padding:14px 18px;border-radius:12px;background:#99dbf0;color:#0d1721;text-align:center;text-decoration:none;font:inherit;border:0;cursor:pointer}button:disabled{opacity:.4;cursor:default}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#192835;padding:18px;border-radius:12px;font:14px/1.9 system-ui,sans-serif}label{display:flex;align-items:flex-start;gap:10px}input{margin-top:9px}small{display:block;font-size:12px}.secondary{background:#243c4b;color:#f0f5f8}</style></head><body><main>
 <h1>保留官方掌瓦登录<br>检查现有会话能否复用</h1>
 <p>先在官方掌瓦保持登录，再用下方按钮在官方掌瓦内打开此页。这个检查不会调用登录、退出、刷新票据、购买等接口。</p>
-<a id="open" href="#">用官方掌瓦打开本检查页</a>
+<a id="open" href="#">用官方掌瓦打开本检查页（新版入口）</a>
+<a id="direct" class="secondary" href="#">备用：直接打开掌瓦内网页</a>
 <small>如果已在官方掌瓦内，请直接勾选并开始检查；不要为了此检查退出官方账号或重新扫描第三方登录码。</small>
 <p><label><input id="ready" type="checkbox"><span>我已在官方掌瓦登录，希望只检查当前会话，不新建登录。</span></label></p>
 <button id="check" disabled>开始只读检查</button>
@@ -13,8 +14,10 @@
 <small>本页无统计脚本，不使用本地存储，不主动发送检查结果；不把 Cookie、票据或原生回调原文写入日志或网页。SDK 来自腾讯官方公开 JSAPI。结果只代表接口可响应或字段可见，不代表已验证票据可供独立 App 使用。</small>
 </main><script src="https://app.val.qq.com/jsapi/mval.js"></script><script>
 const $=id=>document.getElementById(id);
-const canonical='https://samoyezuikeai.github.io/samoyed-shop-download/session-check.html';
-$('open').href='https://val.qq.com/cp/a20231212val_static_page/page/openVal/index.html?skip_download=1&url='+encodeURIComponent(canonical);
+const canonical='https://samoyezuikeai.github.io/samoyed-shop-download/session-check.html?v=2';
+const intent='valpage://web?url='+encodeURIComponent(canonical)+'&ios_pure_webview=1&is_only_page=1&canDragBack=1';
+$('open').href='https://val.qq.com/cp/a20231212val_static_page/page/openVal/index.html?skip_download=1&intent='+encodeURIComponent(intent);
+$('direct').href=intent;
 $('ready').onchange=()=>{$('check').disabled=!$('ready').checked};
 let report='尚未检查。';
 const write=lines=>{report=lines.join('\n');$('output').textContent=report;};
@@ -27,7 +30,11 @@ $('check').onclick=()=>{
  $('check').disabled=true;
  const lines=['检查方式：现有会话只读探测','新建登录：未调用','刷新票据：未调用','退出登录：未调用'];
  const sdk=window.mval;
+ lines.push('检查页版本：2');
+ const inside=/mval/i.test(navigator.userAgent)||!!window.FixedZV||typeof window.WGWebJSCore!=='undefined'||!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.invokeHandler);
+ lines.push('掌瓦客户端环境特征：'+(inside?'有':'未检测到'));
  lines.push('官方 SDK 已加载：'+(sdk?'是':'否'));
+ if(!inside){lines.push('结果：尚未进入官方掌瓦内置网页。请先使用上方新版入口或备用入口；只到掌瓦首页不算进入成功。');write(lines);$('check').disabled=false;return;}
  if(!sdk){lines.push('结果：SDK 加载失败，未进行任何账号操作。');write(lines);$('check').disabled=false;return;}
  try{
   const cookies=typeof sdk.getCookie==='function'?sdk.getCookie():{};
